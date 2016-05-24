@@ -9,7 +9,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.PersistableBundle;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
@@ -17,24 +16,20 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.chi.im.Utils.FileUtils;
+import com.chi.im.Utils.Utils;
 import com.chi.im.constant.Constant;
-import com.chi.im.model.Friend;
+import com.chi.im.model.User;
 import com.chi.im.service.XmppConnectionImp;
 
-import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;
-import org.jivesoftware.smack.SASLAuthentication;
-import org.jivesoftware.smack.SmackException;
-import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.compress.packet.Compress;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.roster.RosterGroup;
 import org.jivesoftware.smack.roster.packet.RosterPacket;
-import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -50,8 +45,8 @@ public class LoginActivity extends Activity implements  View.OnClickListener  , 
     String serviceName="online.chiyu";
     LoginSucessesBroadcast  loginBroadcast;
     XmppConnectionImp xmppConnectionImp;
-    private List<Friend>  friends=new ArrayList<>();
-    Friend friendItem;
+    private List<User>  friends=new ArrayList<>();
+    User friendItem;
     private Handler mHandler=new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -67,13 +62,15 @@ public class LoginActivity extends Activity implements  View.OnClickListener  , 
                 RosterPacket.ItemType type=entry.getType();
                 RosterPacket.ItemStatus status=entry.getStatus();
                 List<RosterGroup> group=entry.getGroups();
-                friendItem=new Friend();
+                friendItem=new User();
                 friendItem.setName(name);
                 friendItem.setUser(user);
                 friends.add(friendItem);
                 Log.d(TAG,"name-->"+name);
                 Log.d(TAG,"user-->"+user);
             }
+
+            Roster.getInstanceFor(xmppConnectionImp.connection);
         }
     };
 
@@ -119,6 +116,14 @@ public class LoginActivity extends Activity implements  View.OnClickListener  , 
             case R.id.btnSubmit:
                   strAcctount=etAccount.getText().toString().trim();
                   strPwd=etPwd.getText().toString().trim();
+                //点击登录 ，我就保存
+                FileUtils.getInstance().setUserName(strAcctount,LoginActivity.this);
+//                String  cc=FileUtils.getInstance().getUserName(LoginActivity.this);
+//                Utils.showToast(cc,LoginActivity.this);
+
+
+
+
                 //登陆
 //                String  strAcctount=etAccount.getText().toString().trim();
 //                String  strPwd=etPwd.getText().toString().trim();
@@ -178,8 +183,19 @@ public class LoginActivity extends Activity implements  View.OnClickListener  , 
         public void onReceive(Context context, Intent intent) {
             if(intent!=null){
                 if(intent.getAction().equals(LOGIN_SUCCESS)){
+                    //登录成功了，那么保存数据
+
+
+
+
+
                     Toast.makeText(LoginActivity.this,"success",Toast.LENGTH_LONG);
                     Intent loginIntent=new Intent(LoginActivity.this,MainActivity.class);
+                    User user=new User();
+                    user.setName(strAcctount);
+//                    user.setUser();;
+
+                    loginIntent.putExtra("user",user);
                     startActivity(loginIntent);
 //                    finish();
                 }

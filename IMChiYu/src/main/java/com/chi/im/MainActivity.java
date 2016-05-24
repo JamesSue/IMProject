@@ -10,9 +10,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import com.chi.im.Utils.FileUtils;
 import com.chi.im.fragment.FragmentContact;
 import com.chi.im.fragment.FragmentMe;
+import com.chi.im.model.User;
 
 import org.jivesoftware.smack.roster.Roster;
 
@@ -25,6 +28,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private FragmentTransaction transAction;
     private FragmentManager manager;
 
+    private TextView tvTitle;
+
 
 
     @Override
@@ -32,9 +37,14 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 //初始化
+
         frameLayout_main= (LinearLayout) findViewById(R.id.frameLayout_main);
         btnRoster= (Button) findViewById(R.id.btnRoster);
         btnMe= (Button) findViewById(R.id.btnMe);
+        tvTitle= (TextView) findViewById(R.id.tvTitle);
+
+        //获取用户名
+        tvTitle.setText(FileUtils.getInstance().getUserName(this));
 
         fragmentContact=new FragmentContact();
         fragmentMe=new FragmentMe();

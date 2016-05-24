@@ -8,7 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.chi.im.R;
-import com.chi.im.model.Friend;
+import com.chi.im.model.User;
 
 import java.util.List;
 
@@ -16,11 +16,11 @@ import java.util.List;
  * Created by Administrator on 2016/5/20.
  */
 public class ContactAdapter extends BaseAdapter {
-    private List<Friend> friends;
+    private List<User> friends;
     private Context context;
     private LayoutInflater inflater;
 
-    public ContactAdapter(List<Friend> friends, Context context){
+    public ContactAdapter(List<User> friends, Context context){
         this.friends=friends;
         this.context=context;
         inflater=LayoutInflater.from(context);
@@ -41,7 +41,7 @@ public class ContactAdapter extends BaseAdapter {
     public long getItemId(int position) {
         return position;
     }
-    public void update(List<Friend> all){
+    public void update(List<User> all){
         this.friends=all;
         notifyDataSetChanged();
     }
@@ -52,7 +52,7 @@ public class ContactAdapter extends BaseAdapter {
         convertView= inflater.inflate(R.layout.fragment_contact_item,null);
         TextView tvName= (TextView) convertView.findViewById(R.id.tvName);
         TextView tvUser= (TextView) convertView.findViewById(R.id.tvUser);
-        Friend friendItem=friends.get(position);
+        User friendItem=friends.get(position);
         tvName.setText(friendItem.getName());
         tvUser.setText(friendItem.getUser());
         return convertView;

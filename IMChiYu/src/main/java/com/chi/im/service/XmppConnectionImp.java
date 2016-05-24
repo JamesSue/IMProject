@@ -6,16 +6,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.chi.im.constant.Constant;
-import com.chi.im.model.Friend;
+import com.chi.im.model.User;
 import com.chi.im.service.aidl.IXmppConnection;
 
-import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.SmackException;
@@ -40,7 +38,7 @@ import java.util.Set;
  */
 public class XmppConnectionImp  implements IXmppConnection,Constant{
 
-    private  XMPPTCPConnection connection;
+    public  XMPPTCPConnection connection;
     private  String  account,password,serviceName;
     private  MConnectionListner connectionListner;
     private ConnectionConfiguration config;
@@ -49,8 +47,8 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
     private Context mContext;
     private Handler mHandler;
     private GetRosterBroadCast  getRosterBroadCast;
-    private Friend friendItem;
-    private List<Friend> friends=new ArrayList<Friend>();
+    private User friendItem;
+    private List<User> friends=new ArrayList<User>();
 
 
 
@@ -233,7 +231,7 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
                     RosterPacket.ItemType type=entry.getType();
                     RosterPacket.ItemStatus status=entry.getStatus();
                     List<RosterGroup> group=entry.getGroups();
-                    friendItem=new Friend();
+                    friendItem=new User();
                     friendItem.setName(name);
                     friendItem.setUser(user);
                     friends.add(friendItem);
