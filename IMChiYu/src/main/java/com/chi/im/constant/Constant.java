@@ -10,5 +10,6 @@ public interface Constant {
     //广播
     public String  ACTION_REQ_CONTACTS="action_req_contacts";
     public String  ACTION_RESP_CONTACTS="action_resp_contacts";
+    public String  ACTION_SEND_MESSAGE="action_send_message";
 
 }

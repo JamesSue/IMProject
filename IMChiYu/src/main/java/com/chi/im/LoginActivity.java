@@ -47,32 +47,7 @@ public class LoginActivity extends Activity implements  View.OnClickListener  , 
     XmppConnectionImp xmppConnectionImp;
     private List<User>  friends=new ArrayList<>();
     User friendItem;
-    private Handler mHandler=new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            Toast.makeText(LoginActivity.this,"授权成功",Toast.LENGTH_LONG).show();
-            LoginActivity.this.sendBroadcast(new Intent(LOGIN_SUCCESS));
-
-            Roster roster=xmppConnectionImp.getRoster();
-            Set<RosterEntry> set=roster.getEntries();
-            for(RosterEntry entry:set){
-                String name=entry.getName();
-                String user=entry.getUser();
-                RosterPacket.ItemType type=entry.getType();
-                RosterPacket.ItemStatus status=entry.getStatus();
-                List<RosterGroup> group=entry.getGroups();
-                friendItem=new User();
-                friendItem.setName(name);
-                friendItem.setUser(user);
-                friends.add(friendItem);
-                Log.d(TAG,"name-->"+name);
-                Log.d(TAG,"user-->"+user);
-            }
-
-            Roster.getInstanceFor(xmppConnectionImp.connection);
-        }
-    };
+    private Handler mHandler;
 
 
 
@@ -100,8 +75,37 @@ public class LoginActivity extends Activity implements  View.OnClickListener  , 
         loginBroadcast=new LoginSucessesBroadcast();
         IntentFilter filter=new IntentFilter(LOGIN_SUCCESS);
         registerReceiver(loginBroadcast,filter);
-
         btnSubmit.setOnClickListener(this);
+
+        mHandler=new Handler(){
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                Toast.makeText(LoginActivity.this,"授权成功",Toast.LENGTH_LONG).show();
+                LoginActivity.this.sendBroadcast(new Intent(LOGIN_SUCCESS));
+
+                Roster roster=xmppConnectionImp.getRoster();
+                Set<RosterEntry> set=roster.getEntries();
+                for(RosterEntry entry:set){
+                    String name=entry.getName();
+                    String user=entry.getUser();
+                    RosterPacket.ItemType type=entry.getType();
+                    RosterPacket.ItemStatus status=entry.getStatus();
+                    List<RosterGroup> group=entry.getGroups();
+                    friendItem=new User();
+                    friendItem.setName(name);
+                    friendItem.setUser(user);
+                    friends.add(friendItem);
+                    Log.d(TAG,"name-->"+name);
+                    Log.d(TAG,"user-->"+user);
+                }
+
+                Roster.getInstanceFor(xmppConnectionImp.connection);
+            }
+        };
+
+
+
     }
 
     private void initView(){
@@ -146,7 +150,7 @@ public class LoginActivity extends Activity implements  View.OnClickListener  , 
             XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
                     .setUsernameAndPassword(strAcctount, strPwd)
                     .setServiceName("ZGC-20141118TDU")
-                    .setHost("192.168.1.134")
+                    .setHost("192.168.1.136")
                     .setPort(5222)
                     .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
                     .build();

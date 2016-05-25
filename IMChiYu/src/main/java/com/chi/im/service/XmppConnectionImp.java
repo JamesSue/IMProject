@@ -10,15 +10,22 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.chi.im.Utils.Utils;
 import com.chi.im.constant.Constant;
 import com.chi.im.model.User;
 import com.chi.im.service.aidl.IXmppConnection;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionListener;
+import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.chat.Chat;
+import org.jivesoftware.smack.chat.ChatManager;
+import org.jivesoftware.smack.chat.ChatManagerListener;
+import org.jivesoftware.smack.chat.ChatMessageListener;
+import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.roster.RosterGroup;
@@ -49,6 +56,7 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
     private GetRosterBroadCast  getRosterBroadCast;
     private User friendItem;
     private List<User> friends=new ArrayList<User>();
+    private  MyNewMessageListener myNewMessageListener;
 
 
 
@@ -78,7 +86,9 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
         connection=new XMPPTCPConnection(config);
         if(getRosterBroadCast==null){
             getRosterBroadCast=new GetRosterBroadCast();
-            IntentFilter intentFilter=new IntentFilter(ACTION_REQ_CONTACTS);
+            IntentFilter intentFilter=new IntentFilter();
+            intentFilter.addAction(ACTION_REQ_CONTACTS);
+            intentFilter.addAction(ACTION_SEND_MESSAGE);
             context.registerReceiver(getRosterBroadCast,intentFilter);
         }
 
@@ -177,6 +187,8 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
             if(xmppConnection.isAuthenticated()){
                 mHandler.sendEmptyMessage(1);
 
+                incomeChat();
+
                 Log.d(TAG,"authenticated---->isAuthenticated");
             }else{
                 Log.d(TAG,"authenticated---->is not Authenticated");
@@ -244,8 +256,79 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
                 mContext.sendBroadcast(intentFriends);
                 Toast.makeText(mContext,"收到获取roster请求",Toast.LENGTH_LONG).show();
 
+            }else if(action.equals(ACTION_SEND_MESSAGE)){//说明有消息发送
+                Intent  intentSendMsg=new Intent(ACTION_SEND_MESSAGE);
+                String msgInput=intent.getStringExtra("msgInput");
+                String jid=intent.getStringExtra("jid");
+                //调用发送消息的方法
+                sendInputMessage(jid,msgInput);
+
             }
         }
+    }
+
+    //发送消息
+    private void sendInputMessage(String jid,String msgInput){
+        if(connection!=null){
+            Chat chat=ChatManager.getInstanceFor(connection).createChat(jid, new ChatMessageListener() {
+                @Override
+                public void processMessage(Chat chat, Message message) {
+
+                }
+            });
+            try {
+                if(!connection.isConnected()){
+                    try {
+                        connect();
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if(!connection.isConnected()){
+                    Utils.showToast("conn 没连接",mContext);
+                }
+                chat.sendMessage(msgInput);
+            } catch (SmackException.NotConnectedException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+    }
+
+    //接收消息
+    private  void incomeChat(){
+        ChatManager  chatManager=ChatManager.getInstanceFor(connection);
+        chatManager.addChatListener(new ChatManagerListener() {
+            @Override
+            public void chatCreated(Chat chat, boolean b) {
+                if(!b){
+                    showToastMain();
+                    chat.addMessageListener(new MyNewMessageListener());
+                }
+
+            }
+        });
+
+    }
+    class  MyNewMessageListener     implements ChatMessageListener{
+        @Override
+        public void processMessage(Chat chat, Message message) {
+
+            showToastMain();
+        }
+    }
+
+
+    private  void showToastMain(){
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+
+                Utils.showToast("我收到消息了",mContext);
+
+            }
+        });
     }
 
 
