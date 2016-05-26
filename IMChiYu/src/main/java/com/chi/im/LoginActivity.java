@@ -150,7 +150,7 @@ public class LoginActivity extends Activity implements  View.OnClickListener  , 
             XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
                     .setUsernameAndPassword(strAcctount, strPwd)
                     .setServiceName("ZGC-20141118TDU")
-                    .setHost("192.168.1.136")
+                    .setHost(IP)
                     .setPort(5222)
                     .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
                     .build();

@@ -12,4 +12,7 @@ public interface Constant {
     public String  ACTION_RESP_CONTACTS="action_resp_contacts";
     public String  ACTION_SEND_MESSAGE="action_send_message";
 
+    public String  IP="192.168.0.102";
+
+
 }
