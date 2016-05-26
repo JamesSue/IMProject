@@ -247,8 +247,8 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
                     friendItem.setName(name);
                     friendItem.setUser(user);
                     friends.add(friendItem);
-                    Log.d(TAG,"name-->"+name);
-                    Log.d(TAG,"user-->"+user);
+//                    Log.d(TAG,"name-->"+name);
+//                    Log.d(TAG,"user-->"+user);
                 }
                 //发送广播，把联系人发送出去
                 Intent  intentFriends=new Intent(ACTION_RESP_CONTACTS);
