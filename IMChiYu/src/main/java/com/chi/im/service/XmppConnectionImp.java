@@ -314,6 +314,7 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
     class  MyNewMessageListener     implements ChatMessageListener{
         @Override
         public void processMessage(Chat chat, Message message) {
+            Log.d(TAG,"Ｉｎｃｏｍｅ－－－＞"  +"/n"+message.toString());
 
             showToastMain();
         }
