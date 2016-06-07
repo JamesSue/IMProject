@@ -35,6 +35,7 @@
             android:id="@+id/btnSend" />
     </LinearLayout>
     <ListView
+        android:id="@+id/listView"
         android:layout_below="@id/include"
         android:layout_above="@id/llBbottom"
         android:layout_width="match_parent"

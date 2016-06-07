@@ -12,7 +12,11 @@ public interface Constant {
     public String  ACTION_RESP_CONTACTS="action_resp_contacts";
     public String  ACTION_SEND_MESSAGE="action_send_message";
 
+    public String ACTION_RECEOVE_A_MESSAGE = "action_receive_a_message";//收到了一条消息
+
+
     public String  IP="192.168.0.102";
+    public String DB_NAME = "chiyichat";
 
 
 }

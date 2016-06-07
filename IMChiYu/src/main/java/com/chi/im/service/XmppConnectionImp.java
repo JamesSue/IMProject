@@ -4,14 +4,19 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.chi.im.MyApplication;
 import com.chi.im.Utils.Utils;
 import com.chi.im.constant.Constant;
+import com.chi.im.db.MySqliteOpenhelper;
+import com.chi.im.model.MessageYu;
 import com.chi.im.model.User;
 import com.chi.im.service.aidl.IXmppConnection;
 
@@ -36,8 +41,12 @@ import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
+
+import online.green.dao.Msg;
+import online.green.dao.MsgDao;
 
 /**
  * xmpp连接
@@ -57,6 +66,7 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
     private User friendItem;
     private List<User> friends=new ArrayList<User>();
     private  MyNewMessageListener myNewMessageListener;
+    private Cursor cursor;
 
 
 
@@ -302,7 +312,7 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
             @Override
             public void chatCreated(Chat chat, boolean b) {
                 if(!b){
-                    showToastMain();
+//                    showToastMain();
                     chat.addMessageListener(new MyNewMessageListener());
                 }
 
@@ -314,10 +324,72 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
         @Override
         public void processMessage(Chat chat, Message message) {
             Log.d(TAG,"Ｉｎｃｏｍｅ－－－＞"  +"/n/n"+message.toString());
+            Log.d(TAG, "Ｉｎｃｏｍｅ－－body－＞" + "/n/n" + message.getBody());
+            Log.d(TAG, "Ｉｎｃｏｍｅ－－frome－＞" + "/n/n" + message.getFrom());
+            //收到消息了，收到消息后进行保存到数据库
+
+//            Date date=new Date();
+            String date = System.currentTimeMillis() + "";
+            String type;
+            if (message.getType().equals(Message.Type.chat)) {
+                type = "1";
+            } else {
+                type = "2";
+            }
+
+            //毫秒作为id
+//            long   id=System.currentTimeMillis();
+            String from = message.getFrom();
+            String to = message.getTo();
+            String body = message.getBody();
+            MessageYu msgYu = new MessageYu(date, type, body, to, from);
+
+            MyApplication application = (MyApplication) mContext.getApplicationContext();
+            MySqliteOpenhelper sqliteOpenhelper = application.sqliteOpenhelper;
+            //保存到数据库
+            sqliteOpenhelper.insetData(msgYu);
+            //发送广播，将收到的消息的内容发送到 chatActivty中去
+            if (body != null && !body.equals("null")) {
+                Intent intent = new Intent(ACTION_RECEOVE_A_MESSAGE);
+                intent.putExtra("msgYu", msgYu);
+                mContext.sendBroadcast(intent);
+            }
+
+
+            sqliteOpenhelper.getAll();
+
+
+//            Msg  msg=new Msg(null ,  from,to,body
+//                  , null,null);
+
+//            MsgDao  msgDao=getMsgDao();
+//            if(msg.getBody()!=null){
+//                msgDao.insert(msg);
+//            }
+//
+//            Log.d(TAG, "Inserted new note, ID: " + msg.getId());
+//            SQLiteDatabase db= getDb();
+
+
+//            cursor = getDb().query(getMsgDao().getTablename(), nul, null, null, null, null, null);
+
 
             showToastMain();
         }
     }
+
+//    private  MsgDao getMsgDao(){
+//
+//        MyApplication application= (MyApplication) mContext.getApplicationContext();
+//        return application.getDaoSession().getMsgDao();
+//
+//    }
+//    private SQLiteDatabase getDb() {
+//        // 通过 BaseApplication 类提供的 getDb() 获取具体 db
+//        return ((MyApplication) mContext.getApplicationContext()).getDb();
+//    }
+
+
 
 
     private  void showToastMain(){

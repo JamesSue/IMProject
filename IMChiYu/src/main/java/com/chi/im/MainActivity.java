@@ -1,7 +1,7 @@
 package com.chi.im;
 
 
-
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -19,6 +19,9 @@ import com.chi.im.model.User;
 
 import org.jivesoftware.smack.roster.Roster;
 
+import online.green.dao.DaoMaster;
+import online.green.dao.DaoSession;
+
 public class MainActivity extends FragmentActivity implements View.OnClickListener {
 
     private FragmentContact fragmentContact;
@@ -29,6 +32,10 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private FragmentManager manager;
 
     private TextView tvTitle;
+
+    private SQLiteDatabase db;
+    private DaoMaster daoMaster;
+    private DaoSession daoSession;
 
 
 
@@ -57,6 +64,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
         btnRoster.setOnClickListener(this);
         btnMe.setOnClickListener(this);
+
+
     }
 
 
@@ -83,4 +92,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }
 
     }
+
+
 }
