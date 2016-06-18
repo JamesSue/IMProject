@@ -19,8 +19,6 @@ import com.chi.im.model.User;
 
 import org.jivesoftware.smack.roster.Roster;
 
-import online.green.dao.DaoMaster;
-import online.green.dao.DaoSession;
 
 public class MainActivity extends FragmentActivity implements View.OnClickListener {
 
@@ -32,11 +30,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private FragmentManager manager;
 
     private TextView tvTitle;
-
-    private SQLiteDatabase db;
-    private DaoMaster daoMaster;
-    private DaoSession daoSession;
-
 
 
     @Override

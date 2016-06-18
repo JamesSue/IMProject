@@ -44,7 +44,6 @@ dependencies {
     compile files('libs/smack-jingle-old-4.1.7.jar')
     compile files('libs/smack-im-4.1.7.jar')
     compile files('libs/smack-legacy-4.1.7.jar')
-    compile files('libs/smack-resolver-minidns-4.1.7.jar')
     compile files('libs/smack-sasl-provided-4.1.7.jar')
     compile files('libs/smack-tcp-4.1.7.jar')
     compile files('libs/jxmpp-core-0.4.2.jar')

@@ -1,1 +1,1 @@
-include ':IMChiYu', ':daogenerator'
+include ':IMChiYu'

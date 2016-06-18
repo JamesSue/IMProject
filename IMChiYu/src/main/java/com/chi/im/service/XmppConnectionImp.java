@@ -45,8 +45,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import online.green.dao.Msg;
-import online.green.dao.MsgDao;
+
 
 /**
  * xmpp连接
@@ -345,7 +344,8 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
             MessageYu msgYu = new MessageYu(date, type, body, to, from);
 
             MyApplication application = (MyApplication) mContext.getApplicationContext();
-            MySqliteOpenhelper sqliteOpenhelper = application.sqliteOpenhelper;
+//          MySqliteOpenhelper sqliteOpenhelper = application.sqliteOpenhelper;
+            MySqliteOpenhelper sqliteOpenhelper = application.getMySqliteOpenhelper();
             //保存到数据库
             sqliteOpenhelper.insetData(msgYu);
             //发送广播，将收到的消息的内容发送到 chatActivty中去

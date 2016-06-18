@@ -13,7 +13,6 @@ import org.jivesoftware.smack.packet.Message;
 import java.util.ArrayList;
 import java.util.List;
 
-import online.green.dao.Msg;
 
 /**
  * Created by Administrator on 2016/6/2.

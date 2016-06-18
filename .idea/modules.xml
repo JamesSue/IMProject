@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/IMChiYu/IMChiYu.iml" filepath="$PROJECT_DIR$/IMChiYu/IMChiYu.iml" />
       <module fileurl="file://$PROJECT_DIR$/IMProject.iml" filepath="$PROJECT_DIR$/IMProject.iml" />
-      <module fileurl="file://$PROJECT_DIR$/daogenerator/daogenerator.iml" filepath="$PROJECT_DIR$/daogenerator/daogenerator.iml" />
     </modules>
   </component>
 </project>
