@@ -118,8 +118,6 @@ public class ChatActivity extends Activity  implements View.OnClickListener,Cons
                 //然后更新聊天界面
                 all.add(msgYu);
                 chatAdapter.notifyDataSetChanged();
-                ;
-
                 listView.setSelection(all.size() - 1);
 
 
@@ -128,6 +126,7 @@ public class ChatActivity extends Activity  implements View.OnClickListener,Cons
                 intentSendMsg.putExtra("jid",jid);
                 intentSendMsg.putExtra("msgInput",msgInput);
                 sendBroadcast(intentSendMsg);
+                etInput.setText("");
                 break;
         }
 

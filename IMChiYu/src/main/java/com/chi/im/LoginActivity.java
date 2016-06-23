@@ -77,32 +77,32 @@ public class LoginActivity extends Activity implements  View.OnClickListener  , 
         registerReceiver(loginBroadcast,filter);
         btnSubmit.setOnClickListener(this);
 
-        mHandler=new Handler(){
-            @Override
-            public void handleMessage(Message msg) {
-                super.handleMessage(msg);
-                Toast.makeText(LoginActivity.this,"授权成功",Toast.LENGTH_LONG).show();
-                LoginActivity.this.sendBroadcast(new Intent(LOGIN_SUCCESS));
-
-                Roster roster=xmppConnectionImp.getRoster();
-                Set<RosterEntry> set=roster.getEntries();
-                for(RosterEntry entry:set){
-                    String name=entry.getName();
-                    String user=entry.getUser();
-                    RosterPacket.ItemType type=entry.getType();
-                    RosterPacket.ItemStatus status=entry.getStatus();
-                    List<RosterGroup> group=entry.getGroups();
-                    friendItem=new User();
-                    friendItem.setName(name);
-                    friendItem.setUser(user);
-                    friends.add(friendItem);
-                    Log.d(TAG,"name-->"+name);
-                    Log.d(TAG,"user-->"+user);
-                }
-
-                Roster.getInstanceFor(xmppConnectionImp.connection);
-            }
-        };
+//        mHandler=new Handler(){
+//            @Override
+//            public void handleMessage(Message msg) {
+//                super.handleMessage(msg);
+//                Toast.makeText(LoginActivity.this,"授权成功",Toast.LENGTH_LONG).show();
+//                LoginActivity.this.sendBroadcast(new Intent(LOGIN_SUCCESS));
+//
+//                Roster roster=xmppConnectionImp.getRoster();
+//                Set<RosterEntry> set=roster.getEntries();
+//                for(RosterEntry entry:set){
+//                    String name=entry.getName();
+//                    String user=entry.getUser();
+//                    RosterPacket.ItemType type=entry.getType();
+//                    RosterPacket.ItemStatus status=entry.getStatus();
+//                    List<RosterGroup> group=entry.getGroups();
+//                    friendItem=new User();
+//                    friendItem.setName(name);
+//                    friendItem.setUser(user);
+//                    friends.add(friendItem);
+//                    Log.d(TAG,"name-->"+name);
+//                    Log.d(TAG,"user-->"+user);
+//                }
+//
+//                Roster.getInstanceFor(xmppConnectionImp.connection);
+//            }
+//        };
 
 
 
@@ -157,7 +157,7 @@ public class LoginActivity extends Activity implements  View.OnClickListener  , 
 //            SASLAuthentication.blacklistSASLMechanism("DIGEST-MD5");
 //            XmppConnectionImp xmppConnectionImp=new XmppConnectionImp(config);
             try {
-                xmppConnectionImp=new XmppConnectionImp(config,LoginActivity.this,mHandler);
+                xmppConnectionImp = new XmppConnectionImp(config, LoginActivity.this);
                  xmppConnectionImp.login();
             } catch (RemoteException e) {
                 e.printStackTrace();
@@ -188,20 +188,12 @@ public class LoginActivity extends Activity implements  View.OnClickListener  , 
             if(intent!=null){
                 if(intent.getAction().equals(LOGIN_SUCCESS)){
                     //登录成功了，那么保存数据
-
-
-
-
-
                     Toast.makeText(LoginActivity.this,"success",Toast.LENGTH_LONG);
                     Intent loginIntent=new Intent(LoginActivity.this,MainActivity.class);
                     User user=new User();
                     user.setName(strAcctount);
-//                    user.setUser();;
-
                     loginIntent.putExtra("user",user);
                     startActivity(loginIntent);
-//                    finish();
                 }
             }
         }

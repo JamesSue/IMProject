@@ -6,12 +6,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.chi.im.LoginActivity;
 import com.chi.im.MyApplication;
 import com.chi.im.Utils.Utils;
 import com.chi.im.constant.Constant;
@@ -60,12 +62,14 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
     private String  TAG="imchiyu";
     private ConnectionConfiguration.Builder builder;
     private Context mContext;
-    private Handler mHandler;
+
     private GetRosterBroadCast  getRosterBroadCast;
     private User friendItem;
     private List<User> friends=new ArrayList<User>();
     private  MyNewMessageListener myNewMessageListener;
     private Cursor cursor;
+
+    private ReconnectionBroadCastReceive reconnctionReceive;
 
 
 
@@ -87,11 +91,10 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
 //        this.password=password;
 //    }
 
-    public XmppConnectionImp(XMPPTCPConnectionConfiguration config ,Context context,Handler mHandler){
+    public XmppConnectionImp(XMPPTCPConnectionConfiguration config, Context context) {
 
         this.config=config;
         this.mContext=context;
-        this.mHandler=mHandler;
         connection=new XMPPTCPConnection(config);
         if(getRosterBroadCast==null){
             getRosterBroadCast=new GetRosterBroadCast();
@@ -99,6 +102,13 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
             intentFilter.addAction(ACTION_REQ_CONTACTS);
             intentFilter.addAction(ACTION_SEND_MESSAGE);
             context.registerReceiver(getRosterBroadCast,intentFilter);
+        }
+
+        if (reconnctionReceive == null) {
+            reconnctionReceive = new ReconnectionBroadCastReceive();
+            IntentFilter intentFilterNet = new IntentFilter();
+            intentFilterNet.addAction(ACTION_RECONNECTION);
+            context.registerReceiver(reconnctionReceive, intentFilterNet);
         }
 
     }
@@ -194,10 +204,8 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
             Log.d(TAG,"authenticated-->"+xmppConnection+"--->"+b);
 
             if(xmppConnection.isAuthenticated()){
-                mHandler.sendEmptyMessage(1);
-
+                mContext.sendBroadcast(new Intent(LOGIN_SUCCESS));
                 incomeChat();
-
                 Log.d(TAG,"authenticated---->isAuthenticated");
             }else{
                 Log.d(TAG,"authenticated---->is not Authenticated");
@@ -374,7 +382,7 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
 //            cursor = getDb().query(getMsgDao().getTablename(), nul, null, null, null, null, null);
 
 
-            showToastMain();
+//            showToastMain();
         }
     }
 
@@ -390,18 +398,150 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
 //    }
 
 
+//    private  void showToastMain(){
+//        mHandler.post(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//                Utils.showToast("我收到消息了",mContext);
+//
+//            }
+//        });
+//    }
 
 
-    private  void showToastMain(){
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
+    //自己接受自己发的广播，而且传了值 ，网络是否可用
+    class ReconnectionBroadCastReceive extends BroadcastReceiver {
 
-                Utils.showToast("我收到消息了",mContext);
-
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Boolean netIsConnected = intent.getBooleanExtra("netIsConnected", false);
+            if (netIsConnected) {
+                new ReconnectionAsynicTask().execute();
             }
-        });
+
+
+//            new LoaginAsynicTask().execute();
+//            if(netIsConnected){
+//                //开始重新服务器
+//                boolean isConnected= connection.isConnected();
+//                Log.d("msg","isConnected--->"+isConnected);
+//                boolean isAuhthior= connection.isAuthenticated();
+//                Log.d("msg","isAuhthior--->"+isAuhthior);
+//                if(isConnected){
+//                    try {
+//                        connection.connect();
+//                    } catch (SmackException e) {
+//                        e.printStackTrace();
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    } catch (XMPPException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//
+//
+//            }
+
+
+        }
     }
+
+
+    class ReconnectionAsynicTask extends AsyncTask<String[], Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(String[]... params) {
+
+            if (connection != null) {
+                Log.d(TAG, "重新连接---》");
+                Log.d(TAG, "重新连接connection---》" + connection.isConnected());
+                Log.d(TAG, "重新连接isAuthenticated---》" + connection.isAuthenticated());
+                Log.d(TAG, "重新连接isSmAvailable---》" + connection.isSmAvailable());
+                try {
+                    connection.connect();
+                    try {
+                        Thread.sleep(4000);
+                        connection.connect();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                } catch (SmackException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (XMPPException e) {
+                    e.printStackTrace();
+                }
+
+            } else {
+                Log.d(TAG, "重新连接connection---》null");
+            }
+            return false;
+        }
+    }
+
+//        class LoaginAsynicTask extends AsyncTask<String[] ,Void ,Boolean>{
+//        @Override
+//        protected Boolean doInBackground(String[]... params) {
+//            Boolean isLoginScusess=false;
+//
+//
+//
+//            // Create a connection to the jabber.org server on a specific port.
+//            XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
+//                    .setUsernameAndPassword(strAcctount, strPwd)
+//                    .setServiceName("ZGC-20141118TDU")
+//                    .setHost(IP)
+//                    .setPort(5222)
+//                    .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
+//                    .build();
+////            SASLAuthentication.blacklistSASLMechanism("DIGEST-MD5");
+////            XmppConnectionImp xmppConnectionImp=new XmppConnectionImp(config);
+//            try {
+//                xmppConnectionImp=new XmppConnectionImp(config,LoginActivity.this);
+//                 xmppConnectionImp.login();
+//            } catch (RemoteException e) {
+//                e.printStackTrace();
+//            }
+//            return isLoginScusess;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Boolean aBoolean) {
+//            super.onPostExecute(aBoolean);
+//
+//        }
+//
+//    }
+
+
+//    class LoaginAsynicTask extends AsyncTask<String[] ,Void ,Boolean> {
+//        @Override
+//        protected Boolean doInBackground(String[]... params) {
+//
+//            if(connection==null){
+//                Log.d("msg","connction---->null");
+//            }else{
+//                Log.d("msg","connction----> not null");
+//            }
+//
+//            if(connection!=null){
+//                try {
+//                    connection.connect();
+//                } catch (SmackException e) {
+//                    e.printStackTrace();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                } catch (XMPPException e) {
+//                    e.printStackTrace();
+//                }
+//
+//            }
+
+
+
+
 
 
 }
