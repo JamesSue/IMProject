@@ -49,4 +49,13 @@
         android:layout_centerVertical="true"
         android:layout_alignLeft="@+id/etPwd"
         android:layout_alignStart="@+id/etPwd" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="regist"
+        android:id="@+id/btnRegist"
+        android:layout_alignTop="@+id/btnSubmit"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 </RelativeLayout>

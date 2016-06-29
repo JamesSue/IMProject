@@ -39,6 +39,7 @@ import org.jivesoftware.smack.roster.RosterGroup;
 import org.jivesoftware.smack.roster.packet.RosterPacket;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jivesoftware.smackx.iqregister.AccountManager;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -56,7 +57,7 @@ import java.util.Set;
 public class XmppConnectionImp  implements IXmppConnection,Constant{
 
     public  XMPPTCPConnection connection;
-    private  String  account,password,serviceName;
+    private String strAccount, strPwd, serviceName;
     private  MConnectionListner connectionListner;
     private ConnectionConfiguration config;
     private String  TAG="imchiyu";
@@ -70,6 +71,7 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
     private Cursor cursor;
 
     private ReconnectionBroadCastReceive reconnctionReceive;
+
 
 
 
@@ -91,11 +93,14 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
 //        this.password=password;
 //    }
 
-    public XmppConnectionImp(XMPPTCPConnectionConfiguration config, Context context) {
-
+    public XmppConnectionImp(XMPPTCPConnectionConfiguration config, String strAccount, String strPwd, Context context) {
+        this.strAccount = strAccount;
+        this.strPwd = strPwd;
         this.config=config;
         this.mContext=context;
-        connection=new XMPPTCPConnection(config);
+        if (connection == null) {
+            connection = new XMPPTCPConnection(config);
+        }
         if(getRosterBroadCast==null){
             getRosterBroadCast=new GetRosterBroadCast();
             IntentFilter intentFilter=new IntentFilter();
@@ -112,6 +117,7 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
         }
 
     }
+
 
 
 
@@ -146,24 +152,59 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
     @Override
     public void login() throws RemoteException {
         Log.d(TAG,"this.is my login");
+        //登录，
+        if (connection.isConnected() || connection.isAuthenticated()) {
+            connection.disconnect();
+        }
+        connect();
+    }
+
+    public boolean createAccount(String accountRegist, String pwdRegist) {
+        Log.d(TAG, "createAccount----------》");
+        if (connection == null) {
+            Log.d(TAG, "createAccount----------》connection=null");
+            return false;
+        }
+        if (!connection.isConnected()) {
+            Log.d(TAG, "createAccount----------》connection  is  not connected");
+
+        }
+
+        try {
+            Log.d(TAG, "createAccount----------》connection  开始连接........");
+            connection.connect();
+        } catch (SmackException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (XMPPException e) {
+            e.printStackTrace();
+        }
+
         if(connection.isConnected()){
-            Log.d(TAG,"connection--------->isConnected");
-            try {
-                connection.login();
-            } catch (XMPPException e) {
-                e.printStackTrace();
-            } catch (SmackException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Log.d(TAG, "createAccount----------》connection  连接成功");
         }else{
-            Log.d(TAG,"connection--------->isNotConnected");
-            connect();
+            Log.d(TAG, "createAccount----------》connection   连接失败........");
+            return false;
         }
 
 
+        AccountManager accountManager = AccountManager.getInstance(connection);
+        try {
+            accountManager.createAccount(accountRegist, pwdRegist);
+            return true;
+        } catch (SmackException.NoResponseException e) {
+            e.printStackTrace();
+        } catch (XMPPException.XMPPErrorException e) {
+            e.printStackTrace();
+        } catch (SmackException.NotConnectedException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
     }
+
 
     @Override
     public void disconnect() throws RemoteException {
@@ -186,7 +227,7 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
             Log.d(TAG,"connected-->"+xmppConnection);
             //既然连接成功了，那么调用登陆方法
             try {
-                connection.login();
+                connection.login(strAccount, strPwd);
             } catch (XMPPException e) {
                 e.printStackTrace();
             } catch (SmackException e) {
@@ -295,13 +336,20 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
             try {
                 if(!connection.isConnected()){
                     try {
+                        Utils.showToast("connect开始重连", mContext);
                         connect();
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
                 }
+                if (connection == null) {
+                    Utils.showToast("conn==null", mContext);
+                }
+
+//                Utils.showToast(connection.isConnected()+"",mContext);
+
                 if(!connection.isConnected()){
-                    Utils.showToast("conn 没连接",mContext);
+                    Utils.showToast("conn 没连接------》", mContext);
                 }
                 chat.sendMessage(msgInput);
             } catch (SmackException.NotConnectedException e) {
@@ -367,47 +415,10 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
             sqliteOpenhelper.getAll();
 
 
-//            Msg  msg=new Msg(null ,  from,to,body
-//                  , null,null);
-
-//            MsgDao  msgDao=getMsgDao();
-//            if(msg.getBody()!=null){
-//                msgDao.insert(msg);
-//            }
-//
-//            Log.d(TAG, "Inserted new note, ID: " + msg.getId());
-//            SQLiteDatabase db= getDb();
-
-
-//            cursor = getDb().query(getMsgDao().getTablename(), nul, null, null, null, null, null);
-
-
-//            showToastMain();
         }
     }
 
-//    private  MsgDao getMsgDao(){
-//
-//        MyApplication application= (MyApplication) mContext.getApplicationContext();
-//        return application.getDaoSession().getMsgDao();
-//
-//    }
-//    private SQLiteDatabase getDb() {
-//        // 通过 BaseApplication 类提供的 getDb() 获取具体 db
-//        return ((MyApplication) mContext.getApplicationContext()).getDb();
-//    }
 
-
-//    private  void showToastMain(){
-//        mHandler.post(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//                Utils.showToast("我收到消息了",mContext);
-//
-//            }
-//        });
-//    }
 
 
     //自己接受自己发的广播，而且传了值 ，网络是否可用
@@ -419,31 +430,6 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
             if (netIsConnected) {
                 new ReconnectionAsynicTask().execute();
             }
-
-
-//            new LoaginAsynicTask().execute();
-//            if(netIsConnected){
-//                //开始重新服务器
-//                boolean isConnected= connection.isConnected();
-//                Log.d("msg","isConnected--->"+isConnected);
-//                boolean isAuhthior= connection.isAuthenticated();
-//                Log.d("msg","isAuhthior--->"+isAuhthior);
-//                if(isConnected){
-//                    try {
-//                        connection.connect();
-//                    } catch (SmackException e) {
-//                        e.printStackTrace();
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    } catch (XMPPException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//
-//
-//            }
-
-
         }
     }
 
@@ -481,63 +467,6 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
         }
     }
 
-//        class LoaginAsynicTask extends AsyncTask<String[] ,Void ,Boolean>{
-//        @Override
-//        protected Boolean doInBackground(String[]... params) {
-//            Boolean isLoginScusess=false;
-//
-//
-//
-//            // Create a connection to the jabber.org server on a specific port.
-//            XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
-//                    .setUsernameAndPassword(strAcctount, strPwd)
-//                    .setServiceName("ZGC-20141118TDU")
-//                    .setHost(IP)
-//                    .setPort(5222)
-//                    .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
-//                    .build();
-////            SASLAuthentication.blacklistSASLMechanism("DIGEST-MD5");
-////            XmppConnectionImp xmppConnectionImp=new XmppConnectionImp(config);
-//            try {
-//                xmppConnectionImp=new XmppConnectionImp(config,LoginActivity.this);
-//                 xmppConnectionImp.login();
-//            } catch (RemoteException e) {
-//                e.printStackTrace();
-//            }
-//            return isLoginScusess;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(Boolean aBoolean) {
-//            super.onPostExecute(aBoolean);
-//
-//        }
-//
-//    }
-
-
-//    class LoaginAsynicTask extends AsyncTask<String[] ,Void ,Boolean> {
-//        @Override
-//        protected Boolean doInBackground(String[]... params) {
-//
-//            if(connection==null){
-//                Log.d("msg","connction---->null");
-//            }else{
-//                Log.d("msg","connction----> not null");
-//            }
-//
-//            if(connection!=null){
-//                try {
-//                    connection.connect();
-//                } catch (SmackException e) {
-//                    e.printStackTrace();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                } catch (XMPPException e) {
-//                    e.printStackTrace();
-//                }
-//
-//            }
 
 
 

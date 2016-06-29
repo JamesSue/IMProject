@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:text="注册"
+        android:textSize="20sp"
+        android:layout_marginLeft="15dp"
+        android:gravity="center_vertical" />
+
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+
+
+        android:id="@+id/etAccount"
+        android:hint="请输入用户名" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:inputType="textPassword"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="20dp"
+
+        android:id="@+id/edtPwd"
+        android:hint="请输入密码"
+
+        android:layout_gravity="center_vertical" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="提交"
+        android:id="@+id/btnSubmit"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="40dp" />
+</LinearLayout>

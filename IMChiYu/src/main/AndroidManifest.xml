@@ -75,6 +75,8 @@
 
         <activity android:name=".MainActivity" />
         <activity android:name=".ChatActivity" />
+        <activity android:name=".RegistActivity" />
+
 
         <service
             android:name=".service.MainService"

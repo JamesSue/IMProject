@@ -90,5 +90,13 @@ public class FragmentContact extends Fragment implements Constant {
 
         }
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (broadcast != null) {
+            getContext().unregisterReceiver(broadcast);
+        }
+    }
 }
 

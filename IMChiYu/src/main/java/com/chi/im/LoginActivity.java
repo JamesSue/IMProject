@@ -38,7 +38,7 @@ import java.util.Set;
  * Created by Administrator on 2016/5/16.
  */
 public class LoginActivity extends Activity implements  View.OnClickListener  , Constant {
-    private Button btnSubmit;
+    private Button btnSubmit, btnRegist;
     private EditText etAccount,etPwd;
     String  strAcctount;
     String  strPwd;
@@ -77,6 +77,7 @@ public class LoginActivity extends Activity implements  View.OnClickListener  , 
         registerReceiver(loginBroadcast,filter);
         btnSubmit.setOnClickListener(this);
 
+
 //        mHandler=new Handler(){
 //            @Override
 //            public void handleMessage(Message msg) {
@@ -112,6 +113,9 @@ public class LoginActivity extends Activity implements  View.OnClickListener  , 
         etAccount=(EditText) findViewById(R.id.etAccount);
         etPwd=(EditText) findViewById(R.id.etPwd);
         btnSubmit= (Button) findViewById(R.id.btnSubmit);
+        btnRegist = (Button) findViewById(R.id.btnRegist);
+
+        btnRegist.setOnClickListener(this);
     }
 
     @Override
@@ -136,6 +140,9 @@ public class LoginActivity extends Activity implements  View.OnClickListener  , 
 //                data[1]=strPwd;
                   new LoaginAsynicTask().execute();
                   break;
+            case R.id.btnRegist://注册
+                startActivity(new Intent(LoginActivity.this, RegistActivity.class));
+                break;
         }
 
     }
@@ -148,7 +155,7 @@ public class LoginActivity extends Activity implements  View.OnClickListener  , 
 
             // Create a connection to the jabber.org server on a specific port.
             XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
-                    .setUsernameAndPassword(strAcctount, strPwd)
+//                    .setUsernameAndPassword(strAcctount, strPwd)
                     .setServiceName("ZGC-20141118TDU")
                     .setHost(IP)
                     .setPort(5222)
@@ -157,7 +164,7 @@ public class LoginActivity extends Activity implements  View.OnClickListener  , 
 //            SASLAuthentication.blacklistSASLMechanism("DIGEST-MD5");
 //            XmppConnectionImp xmppConnectionImp=new XmppConnectionImp(config);
             try {
-                xmppConnectionImp = new XmppConnectionImp(config, LoginActivity.this);
+                xmppConnectionImp = new XmppConnectionImp(config, strAcctount, strPwd, LoginActivity.this);
                  xmppConnectionImp.login();
             } catch (RemoteException e) {
                 e.printStackTrace();
