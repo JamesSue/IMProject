@@ -1,6 +1,7 @@
 package com.chi.im;
 
 
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -13,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.chi.im.Utils.FileUtils;
+import com.chi.im.constant.Constant;
 import com.chi.im.fragment.FragmentContact;
 import com.chi.im.fragment.FragmentMe;
 import com.chi.im.model.User;
@@ -86,5 +88,10 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        sendBroadcast(new Intent(Constant.ACTION_DISCONNECT));
 
+    }
 }

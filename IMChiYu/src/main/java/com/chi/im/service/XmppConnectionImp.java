@@ -106,6 +106,7 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
             IntentFilter intentFilter=new IntentFilter();
             intentFilter.addAction(ACTION_REQ_CONTACTS);
             intentFilter.addAction(ACTION_SEND_MESSAGE);
+            intentFilter.addAction(ACTION_DISCONNECT);
             context.registerReceiver(getRosterBroadCast,intentFilter);
         }
 
@@ -320,6 +321,10 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
                 //调用发送消息的方法
                 sendInputMessage(jid,msgInput);
 
+            } else if (action.equals(ACTION_DISCONNECT)) {
+                if (connection != null && connection.isConnected()) {
+                    connection.disconnect();
+                }
             }
         }
     }
