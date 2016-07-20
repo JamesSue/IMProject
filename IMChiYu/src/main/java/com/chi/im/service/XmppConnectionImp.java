@@ -21,6 +21,7 @@ import com.chi.im.db.MySqliteOpenhelper;
 import com.chi.im.model.MessageYu;
 import com.chi.im.model.User;
 import com.chi.im.service.aidl.IXmppConnection;
+import com.chi.im.smack.UserExtensionInfo;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionListener;
@@ -33,6 +34,8 @@ import org.jivesoftware.smack.chat.ChatManager;
 import org.jivesoftware.smack.chat.ChatManagerListener;
 import org.jivesoftware.smack.chat.ChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Stanza;
+import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.roster.RosterGroup;
@@ -40,6 +43,10 @@ import org.jivesoftware.smack.roster.packet.RosterPacket;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.iqregister.AccountManager;
+import org.jivesoftware.smackx.receipts.DeliveryReceipt;
+import org.jivesoftware.smackx.receipts.DeliveryReceiptManager;
+import org.jivesoftware.smackx.receipts.DeliveryReceiptRequest;
+import org.jivesoftware.smackx.receipts.ReceiptReceivedListener;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -291,6 +298,8 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
     class GetRosterBroadCast extends BroadcastReceiver{
         @Override
         public void onReceive(Context context, Intent intent) {
+
+
             String action=intent.getAction();
             if(action.equals(ACTION_REQ_CONTACTS)){
                 friends.clear();
@@ -319,7 +328,8 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
                 String msgInput=intent.getStringExtra("msgInput");
                 String jid=intent.getStringExtra("jid");
                 //调用发送消息的方法
-                sendInputMessage(jid,msgInput);
+                UserExtensionInfo userExtensionInfo= (UserExtensionInfo) intentSendMsg.getSerializableExtra("userExtensionInfo");
+                sendInputMessage(jid,msgInput,userExtensionInfo);
 
             } else if (action.equals(ACTION_DISCONNECT)) {
                 if (connection != null && connection.isConnected()) {
@@ -330,8 +340,8 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
     }
 
     //发送消息
-    private void sendInputMessage(String jid,String msgInput){
-        if(connection!=null){
+    private void sendInputMessage(String jid, String msgInput, UserExtensionInfo userExtensionInfo){
+        if(connection!=null&&connection.isConnected()){
             Chat chat=ChatManager.getInstanceFor(connection).createChat(jid, new ChatMessageListener() {
                 @Override
                 public void processMessage(Chat chat, Message message) {
@@ -339,14 +349,14 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
                 }
             });
             try {
-                if(!connection.isConnected()){
-                    try {
-                        Utils.showToast("connect开始重连", mContext);
-                        connect();
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
-                }
+//                if(!connection.isConnected()){
+//                    try {
+//                        Utils.showToast("connect开始重连", mContext);
+//                        connect();
+//                    } catch (RemoteException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
                 if (connection == null) {
                     Utils.showToast("conn==null", mContext);
                 }
@@ -356,7 +366,48 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
                 if(!connection.isConnected()){
                     Utils.showToast("conn 没连接------》", mContext);
                 }
-                chat.sendMessage(msgInput);
+//                chat.sendMessage(msgInput);
+//                //测试自定义的message,添加参数
+                Message message=new Message();
+//                if(userExtensionInfo!=null){
+//                    message.addExtension(userExtensionInfo);
+//                }
+
+                UserExtensionInfo extensionInfo=new UserExtensionInfo();
+                extensionInfo.setHeadUrl("www.hao123.com");
+                extensionInfo.setMotto("有志者事竟成");
+                message.addExtension(extensionInfo);
+                message.setBody(msgInput);
+
+                DeliveryReceiptRequest  drr=new DeliveryReceiptRequest();
+                message.addExtension(drr);
+//                ProviderManager p
+//                String messageId=message.getStanzaId();
+//                DeliveryReceipt deliveryReceipt=new DeliveryReceipt(messageId);
+//                message.addExtension(deliveryReceipt);
+                //添加回执请求
+//                DeliveryReceiptRequest.addTo(message);
+//                connection.sendStanza(message);
+
+//                DeliveryReceiptManager.addDeliveryReceiptRequest(message);
+//                DeliveryReceiptManager deliveryReceiptManager=   DeliveryReceiptManager.getInstanceFor(connection);
+//                deliveryReceiptManager.autoAddDeliveryReceiptRequests();
+//                deliveryReceiptManager.addReceiptReceivedListener(new ReceiptReceivedListener(){
+//                    @Override
+//                    public void onReceiptReceived(String s, String s1, String s2, Stanza stanza) {
+//                        Log.d(TAG,"===========================================================");
+//                        Log.d(TAG,s);
+//                        Log.d(TAG,s1);
+//                        Log.d(TAG,s2);
+//                        Log.d(TAG,s2);
+//                        Log.d(TAG,stanza.toXML().toString());
+//                        Log.d(TAG,"===========================================================");
+//
+//                    }
+//                });
+
+                Log.d(TAG,"**********发送的数据*********\n\n\n"+message.toString()+"\n\n");
+                chat.sendMessage(message);
             } catch (SmackException.NotConnectedException e) {
                 e.printStackTrace();
             }
@@ -383,10 +434,26 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
     class  MyNewMessageListener     implements ChatMessageListener{
         @Override
         public void processMessage(Chat chat, Message message) {
-            Log.d(TAG,"Ｉｎｃｏｍｅ－－－＞"  +"/n/n"+message.toString());
-            Log.d(TAG, "Ｉｎｃｏｍｅ－－body－＞" + "/n/n" + message.getBody());
-            Log.d(TAG, "Ｉｎｃｏｍｅ－－frome－＞" + "/n/n" + message.getFrom());
-            //收到消息了，收到消息后进行保存到数据库
+            Log.d(TAG,"收到消息了\n\n\n"+message.toString()+"\n\n");
+//            Log.d(TAG, "Ｉｎｃｏｍｅ－－body－＞" + "/n/n" + message.());
+//            Log.d(TAG, "Ｉｎｃｏｍｅ－－frome－＞" + "/n/n" + message.getFrom());
+            //收到消息了，收到消息后进行保到数据库
+            //如果收到的消息内容不是null 那么回执 ，我收到了消息了
+            String  body=message.getBody();
+            String from = message.getFrom();
+            String to = message.getTo();
+            if(body!=null){
+                DeliveryReceipt receipt=new DeliveryReceipt(message.getStanzaId());
+                message.addExtension(receipt);
+                try {
+                    chat.sendMessage(message);
+                } catch (SmackException.NotConnectedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+
 
 //            Date date=new Date();
             String date = System.currentTimeMillis() + "";
@@ -397,11 +464,16 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
                 type = "2";
             }
 
+            //我收到了消息
+
+//            chat.sendMessage();
+
+
+
             //毫秒作为id
 //            long   id=System.currentTimeMillis();
-            String from = message.getFrom();
-            String to = message.getTo();
-            String body = message.getBody();
+
+
             MessageYu msgYu = new MessageYu(date, type, body, to, from);
 
             MyApplication application = (MyApplication) mContext.getApplicationContext();
@@ -417,7 +489,7 @@ public class XmppConnectionImp  implements IXmppConnection,Constant{
             }
 
 
-            sqliteOpenhelper.getAll();
+//            sqliteOpenhelper.getAll();
 
 
         }

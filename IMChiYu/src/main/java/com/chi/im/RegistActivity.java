@@ -67,7 +67,7 @@ public class RegistActivity extends Activity implements View.OnClickListener, Co
             // Create a connection to the jabber.org server on a specific port.
             XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
 //                    .setUsernameAndPassword(strAcctount, strPwd)
-                    .setServiceName("ZGC-20141118TDU")
+                    .setServiceName(SERVICE_NAME)
                     .setHost(IP)
                     .setPort(5222)
                     .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)

@@ -26,6 +26,9 @@ public interface Constant {
 
     public String  IP="192.168.0.102";
     public String DB_NAME = "chiyichat";
+    public String SERVICE_NAME = "bjsor4f65bpqstu";
+
+
 
 
 }

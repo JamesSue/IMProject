@@ -23,6 +23,7 @@ import com.chi.im.constant.Constant;
 import com.chi.im.db.MySqliteOpenhelper;
 import com.chi.im.model.MessageYu;
 import com.chi.im.model.User;
+import com.chi.im.smack.UserExtensionInfo;
 
 import org.jivesoftware.smack.packet.Message;
 
@@ -125,6 +126,11 @@ public class ChatActivity extends Activity  implements View.OnClickListener,Cons
                 Intent  intentSendMsg=new Intent(ACTION_SEND_MESSAGE);
                 intentSendMsg.putExtra("jid",jid);
                 intentSendMsg.putExtra("msgInput",msgInput);
+
+                UserExtensionInfo userExtensionInfo=new UserExtensionInfo();
+                userExtensionInfo.setMotto("有志者事竟成");
+                userExtensionInfo.setHeadUrl("http://img0.imgtn.bdimg.com/it/u=1275926818,630137678&fm=21&gp=0.jpg");
+                intentSendMsg.putExtra("UserExtensionInfo",userExtensionInfo);
                 sendBroadcast(intentSendMsg);
                 etInput.setText("");
                 break;
@@ -162,8 +168,24 @@ public class ChatActivity extends Activity  implements View.OnClickListener,Cons
         public View getView(int position, View convertView, ViewGroup parent) {
 
             MessageYu msg = all.get(position);
+
+
+
             String from = msg.getFrom();
             String name = null;
+            if(from==null){
+                convertView = inflater.inflate(R.layout.layout_chat_left, null);
+                TextView tvName = (TextView) convertView.findViewById(R.id.tvName);
+                TextView tvBody = (TextView) convertView.findViewById(R.id.tvBody);
+
+                tvName.setText("from==null");
+                tvBody.setText(msg.getId()+"");
+                return convertView;
+
+
+
+
+            }
             if (from.contains("@")) {
                 name = from.substring(0, from.indexOf("@"));
             } else {
